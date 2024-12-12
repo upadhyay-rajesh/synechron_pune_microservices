@@ -1,16 +1,18 @@
 pipeline {
     agent any
+    
+    tools{
+        maven 'mymaven'
+    }
 
     stages {
-        stage('git') {
+        stage('build maven') {
             steps {
-                script{
-                    git branch: 'day1_producer', credentialsId: '51eaf4c5-1c5f-40c4-ac12-c071cc1f91dc', url: 'https://github.com/upadhyay-rajesh/synechron_pune_microservices'
-                }
-               
+               checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: '51eaf4c5-1c5f-40c4-ac12-c071cc1f91dc', url: 'https://github.com/upadhyay-rajesh/dddd']])
+               bat 'mvn clean install'
             }
         }
-        stage('build docker image') {
+         stage('build docker image') {
             steps {
                 script{
                     bat 'docker build -t divyamallela/myjenkins .'
@@ -18,17 +20,18 @@ pipeline {
                
             }
         }
-        stage('push images to hub') {
-            steps {
-                script{
-                    withCredentials([string(credentialsId: 'dockerhubid2', variable: 'dockerhubc2')]) {
-                        bat 'docker login -u upadhyay.rajesh@rediffmail.com -p Rajesh123@ docker.io'
-                        
-                        bat 'docker push divyamallela/myjenkins'
+        
+        stage('push docker image to docker hub'){
+		steps{
+		    script{
+		        withCredentials([string(credentialsId: 'mydockerhubpassword', variable: 'mydockerhubpassword')]) {
+                    bat 'docker login -u upadhyay0@gmail.com -p Rajesh123@ docker.io'
+                    
+                    bat 'docker push divyamallela/myjenkins'
                 }
-                }
-               
-            }
-        }
+		    }
+		}
+	}
+        
     }
 }
