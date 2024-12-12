@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('git') {
+            steps {
+                script{
+                    git branch: 'day1_producer', credentialsId: '51eaf4c5-1c5f-40c4-ac12-c071cc1f91dc', url: 'https://github.com/upadhyay-rajesh/synechron_pune_microservices'
+                }
+               
+            }
+        }
+        stage('build docker image') {
+            steps {
+                script{
+                    bat 'docker build -t divyamallela/myjenkins .'
+                }
+               
+            }
+        }
+        stage('push images to hub') {
+            steps {
+                script{
+                    withCredentials([string(credentialsId: 'dockerhubid2', variable: 'dockerhubc2')]) {
+                        bat 'docker login -u upadhyay.rajesh@rediffmail.com -p Rajesh123@ docker.io'
+                        
+                        bat 'docker push divyamallela/myjenkins'
+                }
+                }
+               
+            }
+        }
+    }
+}
